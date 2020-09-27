@@ -167,11 +167,6 @@ func UpdateCurrentUserRsvp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !isActive {
-		errors.WriteError(w, r, errors.AttributeMismatchError("Cannot modify RSVP, applicant decision has expired.", "Cannot modify RSVP, applicant decision has expired."))
-		return
-	}
-
 	original_rsvp, err := service.GetUserRsvp(id)
 
 	if err != nil {
@@ -184,6 +179,14 @@ func UpdateCurrentUserRsvp(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		errors.WriteError(w, r, errors.InternalError(err.Error(), "Could not decode user rsvp information. Failure in JSON validation or incorrect rsvp definition."))
+		return
+	}
+
+	new_rsvp := &rsvp
+	can_update_rsvp_after_deadline := service.CheckIfTryingToChangeCrticalRsvpInfo(original_rsvp, new_rsvp)
+
+	if !isActive && !can_update_rsvp_after_deadline {
+		errors.WriteError(w, r, errors.AttributeMismatchError("Cannot modify RSVP, applicant decision has expired.", "Cannot modify RSVP, applicant decision has expired."))
 		return
 	}
 

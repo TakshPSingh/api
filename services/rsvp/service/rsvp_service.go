@@ -129,3 +129,13 @@ func GetFilteredRsvps(parameters map[string][]string) (*models.FilteredRsvps, er
 func GetStats() (map[string]interface{}, error) {
 	return db.GetStats("rsvps", config.RSVP_STAT_FIELDS)
 }
+
+/*
+	We want users to be able to make minor changes such as change their T-Shirt size even after their RSVP windows expires,
+	but we do not want them to make critical changes after the deadline, like change their attendance plans.
+
+	This functions checks if a user is trying to make a critical change.
+*/
+func CheckIfTryingToChangeCrticalRsvpInfo(original_rsvp *models.UserRsvp, new_rsvp *models.UserRsvp) bool {
+	return original_rsvp.Data["isAttending"].(bool) != new_rsvp.Data["isAttending"].(bool)
+}

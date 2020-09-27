@@ -183,7 +183,7 @@ func UpdateCurrentUserRsvp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	new_rsvp := &rsvp
-	can_update_rsvp_after_deadline := service.CheckIfTryingToChangeCrticalRsvpInfo(original_rsvp, new_rsvp)
+	can_update_rsvp_after_deadline := !service.CheckIfTryingToChangeCrticalRsvpInfo(original_rsvp, new_rsvp)
 
 	if !isActive && !can_update_rsvp_after_deadline {
 		errors.WriteError(w, r, errors.AttributeMismatchError("Cannot modify RSVP, applicant decision has expired.", "Cannot modify RSVP, applicant decision has expired."))
